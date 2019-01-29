@@ -16,6 +16,8 @@ public class OI {
 public Joystick stick; 
 public static int RX = 4;
 public static int LY = 1;
+public static int LTrigger = 2;
+public static int RTrigger = 3;
 
 public OI() {
   stick = new Joystick(0);

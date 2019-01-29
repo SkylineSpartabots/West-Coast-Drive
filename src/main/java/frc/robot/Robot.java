@@ -12,8 +12,9 @@ import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.commands.DriveWithJoyStick;
 import frc.robot.subsystems.Drivetrain;
+import util.*;
+import frc.robot.commands.*;
 /**
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the TimedRobot
@@ -24,9 +25,9 @@ import frc.robot.subsystems.Drivetrain;
 public class Robot extends TimedRobot  {
   //public static ExampleSubsystem m_subsystem = new ExampleSubsystem();
   public static OI m_oi;
-  public static Drivetrain m_drive;
+  public static Drivetrain drive;
   public static Object DriveTrain;
-
+  public static NavX navx;
   Command m_autonomousCommand;
   SendableChooser<Command> m_chooser = new SendableChooser<>();
 
@@ -37,10 +38,14 @@ public class Robot extends TimedRobot  {
   @Override
   public void robotInit() {
     m_oi = new OI();
-    m_drive = new Drivetrain();
+    drive = new Drivetrain();
+    navx = new NavX();
     m_chooser.setDefaultOption("Default Auto", new DriveWithJoyStick());
     // chooser.addOption("My Auto", new MyAutoCommand());
+    m_chooser.addOption("Test Turning", new TurningTestAuto());
+    m_chooser.addOption("Left Encoder Only", new LeftEncoderAuto());
     SmartDashboard.putData("Auto mode", m_chooser);
+    //LiveWindow.add(drive);
   }
 
   /**
@@ -83,7 +88,7 @@ public class Robot extends TimedRobot  {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_chooser.getSelected();
-
+    navx.reset();
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",
      * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
@@ -92,6 +97,7 @@ public class Robot extends TimedRobot  {
      */
 
     // schedule the autonomous command (example)
+    //m_autonomousCommand = new LeftEncoderAuto();
     if (m_autonomousCommand != null) {
       m_autonomousCommand.start();
     }
@@ -122,6 +128,12 @@ public class Robot extends TimedRobot  {
   @Override
   public void teleopPeriodic() {
     Scheduler.getInstance().run();
+    drive.sensorOutput();
+    //drive.neoOuput();
+    if(!Robot.drive.limitSwitch.get()){
+      Robot.drive.leftEncoder.reset();
+    }
+
   }
 
   /**

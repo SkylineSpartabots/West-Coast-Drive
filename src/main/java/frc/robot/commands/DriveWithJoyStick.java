@@ -15,25 +15,34 @@ import frc.robot.Robot;
  * An example command.  You can replace me with your own command.
  */
 public class DriveWithJoyStick extends Command {
-  
-
+  private double turn;
+  private double forward;
+  private double leftTriggerPower;
+  private double rightTriggerPower;
 public DriveWithJoyStick() {
     // Use requires() here to declare subsystem dependencies
-    requires(Robot.m_drive);
+    requires(Robot.drive);
   }
 
   // Called just before this Command runs the first time
   @Override
   protected void initialize() {
-    Robot.m_drive.arcadeDrive(0, 0);
+    Robot.drive.arcadeDrive(0, 0);
   }
 
   // Called repeatedly when this Command is scheduled to run
   @Override
   protected void execute() {
-    double right = Robot.m_oi.stick.getRawAxis(OI.RX);
-    double left = Robot.m_oi.stick.getRawAxis(OI.LY);
-    Robot.m_drive.arcadeDrive(-left, right);
+    turn = Robot.m_oi.stick.getRawAxis(OI.RX);
+    forward = Robot.m_oi.stick.getRawAxis(OI.LY)*0.5;
+    Robot.drive.arcadeDrive(-forward, turn);
+
+    leftTriggerPower = Robot.m_oi.stick.getRawAxis(OI.LTrigger);
+    rightTriggerPower= Robot.m_oi.stick.getRawAxis(OI.RTrigger);
+    Robot.drive.neoMotorSetPower(leftTriggerPower - rightTriggerPower); //sets neo motor to the total of the left and right trigger, the right trigger is negative and left is positive
+    //System.out.println(Robot.drive.sensorOutput());
+    Robot.drive.sensorOutput();
+    Robot.drive.neoOuput();
   }
 
   // Make this return true when this Command no longer needs to run execute()
@@ -45,7 +54,7 @@ public DriveWithJoyStick() {
   // Called once after isFinished returns true
   @Override
   protected void end() {
-    Robot.m_drive.arcadeDrive(0, 0);
+    Robot.drive.arcadeDrive(0, 0);
   }
 
   // Called when another command which requires one or more of the same
