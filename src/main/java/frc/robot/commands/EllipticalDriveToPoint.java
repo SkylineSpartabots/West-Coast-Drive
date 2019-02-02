@@ -16,8 +16,6 @@ import java.io.IOException;
 
 import frc.robot.Robot;
 
-import PIDStats.GatherStatistics;
-import PIDStats.GatherStatistics.PID_TYPE;
 
 public class EllipticalDriveToPoint extends Command {
 	private double x;
@@ -51,8 +49,6 @@ public class EllipticalDriveToPoint extends Command {
 
 	private double rightTarget, leftTarget;
 
-	private GatherStatistics leftStats;
-	private GatherStatistics rightStats;
   	private Timer timer;
   
 
@@ -64,7 +60,10 @@ public class EllipticalDriveToPoint extends Command {
 	private double kP = 0.008;
 	private double kI = 0;
 	private double kD = 0;
-  public EllipticalDriveToPoint(double x, double y) { //just made x and y make it so that you can find the eliptical path for left and right, use the witdth of the robot and extend the radii of the ellipse
+  public EllipticalDriveToPoint(double x, double y) throws IOException { // just made x and y make it so that you can
+																			// find the eliptical path for left and
+																			// right, use the witdth of the robot and
+																			// extend the radii of the ellipse
     // Use requires() here to declare subsystem dependencies
     // eg. requires(chassis);
     	requires(Robot.drive);
@@ -72,18 +71,7 @@ public class EllipticalDriveToPoint extends Command {
 		this.x = x;
 		this.y = y;
 
-		try {
-			leftStats = new GatherStatistics(PID_TYPE.LEFT_ENCODER);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			rightStats = new GatherStatistics(PID_TYPE.RIGHT_ENCODER);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
+		
 		rightSource = new util.PIDSource(){
 			@Override
 			public double getInput() {
@@ -109,10 +97,10 @@ public class EllipticalDriveToPoint extends Command {
 		rightTarget = Robot.drive.rightEncoder.getRaw() + (rightc * COUNTS_PER_INCH);
 		leftTarget = Robot.drive.leftEncoder.getRaw() + (leftc * COUNTS_PER_INCH);
 
-		rightPID = new SimplePID(rightSource, rightTarget, kP, kI, kD);
+		rightPID = new SimplePID(rightSource, rightTarget, kP, kI, kD, timer, true);
 		rightPID.setOutputLimits(-1, 1);
 
-		leftPID = new SimplePID(leftSource, leftTarget, kP, kI, kD);
+		leftPID = new SimplePID(leftSource, leftTarget, kP, kI, kD, timer, true);
 		leftPID.setOutputLimits(-1, 1);
 
 		timer = new Timer();
@@ -148,8 +136,6 @@ public class EllipticalDriveToPoint extends Command {
 	}
 
 	Robot.drive.tankDrive((leftc/rightc)*leftOutput, (rightc/leftc)*rightOutput);
-	rightStats.writeNewData(timer.get(), Robot.drive.rightEncoder.getRaw(), rightOutput, rightError);
-	leftStats.writeNewData(timer.get(), Robot.drive.rightEncoder.getRaw(), rightOutput, rightError);
 
   }//width of bot, 24.5 in
   //half 12.25
@@ -166,8 +152,7 @@ public class EllipticalDriveToPoint extends Command {
 	  Robot.drive.tankDrive(0, 0);
 	  leftPID.resetPID();
 	  rightPID.resetPID();
-	  leftStats.flushData();
-	  rightStats.flushData();
+	  timer.stop();
   }
 
   // Called when another command which requires one or more of the same

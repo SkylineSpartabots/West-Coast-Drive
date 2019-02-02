@@ -10,6 +10,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import util.NavX;
 import util.PIDSource;
 import util.SimplePID;
@@ -18,9 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import frc.robot.Robot;
-
-import PIDStats.GatherStatistics;
-import PIDStats.GatherStatistics.PID_TYPE;
 
 /**
  * An example command.  You can replace me with your own command.
@@ -31,16 +29,18 @@ public class TurnDegrees extends Command {
 	private final double CLOCK_MAX = 5;
 	private boolean isFinished = false;
 	private double error;
-	private GatherStatistics stats;
+	//private GatherStatistics stats;
 	private Timer timer;
 	private double output = 0;
 	PIDSource NavxSource;
 	SimplePID turnPID;
 
-	double kP = 0.01;
+	double kP = 0.055;
 	double kI = 0.00001;
 	double kD = 0.00135;
 	
+	
+
 	/*
 		double kP = 0.229;
 	double kI = 0.308;
@@ -49,17 +49,17 @@ public class TurnDegrees extends Command {
 	*/
 	
 	
-	public TurnDegrees(double angle) {
+	public TurnDegrees(double angle) throws IOException {
 		// Use requires() here to declare subsystem dependencies
 		requires(Robot.drive);
 		timer = new Timer();
 		this.angle = angle + Robot.navx.getAngle();
-		try {
+	/*	try {
 			stats = new GatherStatistics(PID_TYPE.TURN);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 
 		NavxSource = new PIDSource(){
 		
@@ -69,7 +69,9 @@ public class TurnDegrees extends Command {
 			}
 		};
 
-		turnPID = new SimplePID(NavxSource, this.angle, kP, kI, kD);
+		//SmartDashboard.
+		
+		turnPID = new SimplePID(NavxSource, this.angle, kP, kI, kD, timer, true);
 		turnPID.setOutputLimits(-0.6, 0.6);
 	}
 
@@ -99,7 +101,8 @@ public class TurnDegrees extends Command {
 		}
 		
 		Robot.drive.tankDrive(-output, output);
-		stats.writeNewData(timer.get(), Robot.navx.getAngle(), output, turnPID.getError());
+		Robot.drive.sensorOutput();
+		//stats.writeNewData(timer.get(), Robot.navx.getAngle(), output, turnPID.getError());
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
@@ -113,7 +116,8 @@ public class TurnDegrees extends Command {
 	protected void end() {
 		turnPID.resetPID();
 		Robot.drive.tankDrive(0, 0);
-		stats.flushData();
+		timer.stop();
+	//	stats.flushData();
 	}
 
 	// Called when another command which requires one or more of the same

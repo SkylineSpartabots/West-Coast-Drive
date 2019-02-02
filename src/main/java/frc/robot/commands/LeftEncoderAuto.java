@@ -8,7 +8,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.command.CommandGroup;
-import frc.robot.commands.LeftEncoderDrive;;
+import frc.robot.commands.*;
 
 public class LeftEncoderAuto extends CommandGroup {
   /**
@@ -31,6 +31,11 @@ public class LeftEncoderAuto extends CommandGroup {
     // e.g. if Command1 requires chassis, and Command2 requires arm,
     // a CommandGroup containing them would require both the chassis and the
     // arm.
-    addSequential(new LeftEncoderDrive(10));
+  
+    addSequential(new NoPIDEncoderDrive(60,0.5,0.5));
+
+    
+    addSequential(new NoPIDEncoderDrive(-60,-0.5,-0.5));
+    //  addSequential(new LeftEncoderDrive(60));
   }
 }

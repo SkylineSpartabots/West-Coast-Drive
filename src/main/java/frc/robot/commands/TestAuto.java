@@ -7,13 +7,17 @@
 
 package frc.robot.commands;
 
+import java.io.IOException;
+
 import edu.wpi.first.wpilibj.command.CommandGroup;
 
-public class TurningTestAuto extends CommandGroup {
+public class TestAuto extends CommandGroup {
   /**
    * Add your docs here.
+   * 
+   * @throws IOException
    */
-  public TurningTestAuto() {
+  public TestAuto() throws IOException {
     // Add Commands here:
     // e.g. addSequential(new Command1());
     // addSequential(new Command2());
@@ -31,7 +35,9 @@ public class TurningTestAuto extends CommandGroup {
     // a CommandGroup containing them would require both the chassis and the
     // arm.
 
-    addSequential(new TurnDegrees(90));
-
+   // addSequential(new TurnDegrees(360));
+      //addSequential(new NoPIDEncoderDrive(60, 0.6, 0.6));
+     // addSequential(new PerfectlyStraightDrive(10, 0.6, 0.6));
+      addSequential(new TurnPIDEncoderDrive(200, 0.5, 0.5));
   }
 }

@@ -34,12 +34,12 @@ public DriveWithJoyStick() {
   @Override
   protected void execute() {
     turn = Robot.m_oi.stick.getRawAxis(OI.RX);
-    forward = Robot.m_oi.stick.getRawAxis(OI.LY)*0.5;
+    forward = Robot.m_oi.stick.getRawAxis(OI.LY)*0.75;
     Robot.drive.arcadeDrive(-forward, turn);
 
     leftTriggerPower = Robot.m_oi.stick.getRawAxis(OI.LTrigger);
     rightTriggerPower= Robot.m_oi.stick.getRawAxis(OI.RTrigger);
-    Robot.drive.neoMotorSetPower(leftTriggerPower - rightTriggerPower); //sets neo motor to the total of the left and right trigger, the right trigger is negative and left is positive
+    //Robot.drive.neoMotorSetPower(leftTriggerPower - rightTriggerPower); //sets neo motor to the total of the left and right trigger, the right trigger is negative and left is positive
     //System.out.println(Robot.drive.sensorOutput());
     Robot.drive.sensorOutput();
     Robot.drive.neoOuput();

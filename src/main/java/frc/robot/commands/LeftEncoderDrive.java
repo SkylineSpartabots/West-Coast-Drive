@@ -16,8 +16,6 @@ import java.io.IOException;
 
 import frc.robot.Robot;
 
-import PIDStats.GatherStatistics;
-import PIDStats.GatherStatistics.PID_TYPE;
 
 /**
  * An example command.  You can replace me with your own command.
@@ -44,7 +42,7 @@ public class LeftEncoderDrive extends Command {
 
 	private double rightTarget, leftTarget;
 
-	private GatherStatistics stats;
+	///private GatherStatistics stats;
 	private Timer timer;
 
     private final static double COUNTS_PER_REV = 1000;
@@ -56,17 +54,17 @@ public class LeftEncoderDrive extends Command {
 	private double kI = 0;
 	private double kD = 0;
 
-	public LeftEncoderDrive(double distanceInches) {
+	public LeftEncoderDrive(double distanceInches) throws IOException {
 		// Use requires() here to declare subsystem dependencies
         requires(Robot.drive);
 		this.distanceInches = distanceInches;
 
 
-		try {
-			stats = new GatherStatistics(PID_TYPE.ENCODER);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	//	try {
+		//	stats = new GatherStatistics(PID_TYPE.ENCODER);
+	//	} catch (IOException e) {
+	//		e.printStackTrace();
+	//	}
 
 	/*	rightSource = new util.PIDSource(){
 			@Override
@@ -89,8 +87,8 @@ public class LeftEncoderDrive extends Command {
 		//rightPID = new SimplePID(rightSource, rightTarget, kP, kI, kD);
 		//rightPID.setOutputLimits(-1, 1);
 
-		leftPID = new SimplePID(leftSource, leftTarget, kP, kI, kD);
-		leftPID.setOutputLimits(-1, 1);
+		leftPID = new SimplePID(leftSource, leftTarget, kP, kI, kD, timer, true);
+		leftPID.setOutputLimits(-0.5, 0.5);
 
 		timer = new Timer();
 		
@@ -124,8 +122,8 @@ public class LeftEncoderDrive extends Command {
 			clockCounter = 0;
 		}
 
-		Robot.drive.tankDrive(leftOutput, leftOutput);
-		stats.writeNewData(timer.get(), Robot.drive.leftEncoder.getRaw(), leftOutput, leftError);
+		Robot.drive.tankDrive(-leftOutput, -leftOutput);
+	//	stats.writeNewData(timer.get(), Robot.drive.leftEncoder.getRaw(), leftOutput, leftError);
 	}
 
 	// Make this return true when this Command no longer needs to run execute()
@@ -140,7 +138,8 @@ public class LeftEncoderDrive extends Command {
 		//rightPID.resetPID();
 		leftPID.resetPID();
 		Robot.drive.tankDrive(0, 0);
-		stats.flushData();
+		timer.stop();
+	//	stats.flushData();
 	}
 
 	// Called when another command which requires one or more of the same

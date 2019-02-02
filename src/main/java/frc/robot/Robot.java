@@ -7,9 +7,15 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.util.Map;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.subsystems.Drivetrain;
@@ -28,9 +34,10 @@ public class Robot extends TimedRobot  {
   public static Drivetrain drive;
   public static Object DriveTrain;
   public static NavX navx;
+  public static double angle;
   Command m_autonomousCommand;
   SendableChooser<Command> m_chooser = new SendableChooser<>();
-
+  private static final ShuffleboardTab TAB = Shuffleboard.getTab("WestCoast");
   /**
    * This function is run when the robot is first started up and should be
    * used for any initialization code.
@@ -42,10 +49,21 @@ public class Robot extends TimedRobot  {
     navx = new NavX();
     m_chooser.setDefaultOption("Default Auto", new DriveWithJoyStick());
     // chooser.addOption("My Auto", new MyAutoCommand());
-    m_chooser.addOption("Test Turning", new TurningTestAuto());
+    try {
+      m_chooser.addOption("Test Turning", new TestAuto());
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     m_chooser.addOption("Left Encoder Only", new LeftEncoderAuto());
     SmartDashboard.putData("Auto mode", m_chooser);
     //LiveWindow.add(drive);
+    navx.reset();
+    angle = Robot.navx.getAngle();
+
+    TAB.add("Left Encoder", drive.leftEncoder.getRaw());
+    TAB.add("Magnetic Limit Switch", drive.limitSwitch.get());
+    TAB.add("Navx", navx.getAngle());
   }
 
   /**
@@ -58,6 +76,7 @@ public class Robot extends TimedRobot  {
    */
   @Override
   public void robotPeriodic() {
+    Shuffleboard.update();
   }
 
   /**
@@ -87,8 +106,9 @@ public class Robot extends TimedRobot  {
    */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_chooser.getSelected();
+    //m_autonomousCommand = m_chooser.getSelected();
     navx.reset();
+    drive.leftEncoder.reset();
     /*
      * String autoSelected = SmartDashboard.getString("Auto Selector",
      * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
@@ -97,7 +117,13 @@ public class Robot extends TimedRobot  {
      */
 
     // schedule the autonomous command (example)
-    //m_autonomousCommand = new LeftEncoderAuto();
+   // m_autonomousCommand = new LeftEncoderAuto();
+    try {
+      m_autonomousCommand = new TestAuto();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+	}
     if (m_autonomousCommand != null) {
       m_autonomousCommand.start();
     }
