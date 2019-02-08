@@ -15,8 +15,6 @@ import edu.wpi.first.wpilibj.RobotBase;
  * change the parameter class to the startRobot call.
  */
 public final class Main {
-  //this is a test commnet
-  
   private Main() {
   }
 
